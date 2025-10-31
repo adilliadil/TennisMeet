@@ -13,6 +13,7 @@ export function Header() {
   const navigation = [
     { name: "Find Players", href: "/players" },
     { name: "My Matches", href: "/matches" },
+    { name: "Availability", href: "/availability" },
     { name: "Courts", href: "/courts" },
     { name: "My Profile", href: "/profile" },
   ];

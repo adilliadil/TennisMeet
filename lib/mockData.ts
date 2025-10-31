@@ -1,4 +1,5 @@
-import { User, MatchHistoryEntry } from '@/types';
+import { User, MatchHistoryEntry, Match, MatchSet, TimeBlock } from '@/types';
+import { createMatch } from './matchManager';
 
 // San Francisco Bay Area locations for realistic mock data
 const bayAreaLocations = [
@@ -769,6 +770,103 @@ export const getPlayerById = (id: string): User | undefined => {
   return mockPlayers.find(player => player.id === id);
 };
 
+// Generate realistic match data between players
+function generateMockMatches(): Match[] {
+  const matches: Match[] = [];
+  const surfaces: Array<'hard' | 'clay' | 'grass' | 'carpet'> = ['hard', 'clay', 'grass', 'carpet'];
+
+  // Sample realistic match scores
+  const winningScores: MatchSet[][] = [
+    [{ player1Games: 6, player2Games: 4 }, { player1Games: 6, player2Games: 3 }],
+    [{ player1Games: 7, player2Games: 5 }, { player1Games: 6, player2Games: 4 }],
+    [{ player1Games: 6, player2Games: 2 }, { player1Games: 6, player2Games: 3 }],
+    [{ player1Games: 7, player2Games: 6, tiebreak: { player1Points: 7, player2Points: 5 } }, { player1Games: 6, player2Games: 4 }],
+    [{ player1Games: 4, player2Games: 6 }, { player1Games: 6, player2Games: 3 }, { player1Games: 6, player2Games: 4 }],
+    [{ player1Games: 6, player2Games: 3 }, { player1Games: 6, player2Games: 2 }],
+    [{ player1Games: 6, player2Games: 4 }, { player1Games: 4, player2Games: 6 }, { player1Games: 7, player2Games: 5 }],
+  ];
+
+  // Generate matches between various players
+  const matchups = [
+    { player1Id: '1', player2Id: '5', daysAgo: 2 },
+    { player1Id: '3', player2Id: '10', daysAgo: 5 },
+    { player1Id: '15', player2Id: '8', daysAgo: 7 },
+    { player1Id: '23', player2Id: '1', daysAgo: 10 },
+    { player1Id: '2', player2Id: '6', daysAgo: 12 },
+    { player1Id: '17', player2Id: '3', daysAgo: 15 },
+    { player1Id: '5', player2Id: '8', daysAgo: 18 },
+    { player1Id: '19', player2Id: '15', daysAgo: 20 },
+    { player1Id: '4', player2Id: '9', daysAgo: 22 },
+    { player1Id: '13', player2Id: '22', daysAgo: 25 },
+    { player1Id: '1', player2Id: '8', daysAgo: 28 },
+    { player1Id: '23', player2Id: '17', daysAgo: 30 },
+    { player1Id: '6', player2Id: '14', daysAgo: 32 },
+    { player1Id: '11', player2Id: '21', daysAgo: 35 },
+    { player1Id: '10', player2Id: '15', daysAgo: 40 },
+  ];
+
+  matchups.forEach((matchup, index) => {
+    const player1 = mockPlayers.find(p => p.id === matchup.player1Id);
+    const player2 = mockPlayers.find(p => p.id === matchup.player2Id);
+
+    if (!player1 || !player2) return;
+
+    const location = bayAreaLocations[index % bayAreaLocations.length]!;
+    const surface = surfaces[index % surfaces.length];
+    const scoreTemplate = winningScores[index % winningScores.length]!;
+
+    const completedDate = new Date();
+    completedDate.setDate(completedDate.getDate() - matchup.daysAgo);
+
+    try {
+      const match = createMatch(
+        player1,
+        player2,
+        { sets: scoreTemplate, winnerId: player1.id, duration: 90 + Math.floor(Math.random() * 60) },
+        {
+          name: `${location.city} Tennis Club`,
+          city: location.city,
+          state: location.state,
+          latitude: location.lat,
+          longitude: location.lng,
+        },
+        surface,
+        'Great match!'
+      );
+
+      // Override completed date
+      match.completedDate = completedDate;
+      match.createdAt = completedDate;
+      match.updatedAt = completedDate;
+
+      matches.push(match);
+    } catch (error) {
+      console.error('Error generating match:', error);
+    }
+  });
+
+  return matches.sort((a, b) => {
+    const dateA = a.completedDate?.getTime() || 0;
+    const dateB = b.completedDate?.getTime() || 0;
+    return dateB - dateA;
+  });
+}
+
+// Export mock matches
+export const mockMatches: Match[] = generateMockMatches();
+
+// Helper function to get matches for a player
+export const getPlayerMatches = (playerId: string): Match[] => {
+  return mockMatches.filter(
+    match => match.player1Id === playerId || match.player2Id === playerId
+  );
+};
+
+// Helper function to get match by ID
+export const getMatchById = (matchId: string): Match | undefined => {
+  return mockMatches.find(match => match.id === matchId);
+};
+
 // Helper function to calculate distance between two coordinates (in miles)
 export const calculateDistance = (
   lat1: number,
@@ -787,4 +885,133 @@ export const calculateDistance = (
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
+};
+
+// Generate mock availability time blocks
+function generateMockTimeBlocks(): TimeBlock[] {
+  const blocks: TimeBlock[] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Common time slots
+  const timeSlots = [
+    { start: '06:00', end: '08:00', label: 'Early Morning' },
+    { start: '08:00', end: '10:00', label: 'Morning' },
+    { start: '10:00', end: '12:00', label: 'Late Morning' },
+    { start: '12:00', end: '14:00', label: 'Lunch Time' },
+    { start: '14:00', end: '16:00', label: 'Afternoon' },
+    { start: '16:00', end: '18:00', label: 'Late Afternoon' },
+    { start: '18:00', end: '20:00', label: 'Evening' },
+  ];
+
+  // Generate availability for select players over the next 2 weeks
+  const playerSchedules = [
+    {
+      playerId: '1',
+      name: 'Alex Thompson',
+      pattern: [
+        { days: [1, 3, 5], slots: [0, 1] }, // Mon, Wed, Fri - Early/Morning
+        { days: [0, 6], slots: [1, 2, 3] }, // Sun, Sat - Morning/Late Morning/Lunch
+      ],
+    },
+    {
+      playerId: '2',
+      name: 'Sophia Martinez',
+      pattern: [
+        { days: [0, 6], slots: [1, 2, 4] }, // Sun, Sat - Morning/Late Morning/Afternoon
+      ],
+    },
+    {
+      playerId: '3',
+      name: 'Marcus Johnson',
+      pattern: [
+        { days: [1, 2, 3, 4, 5], slots: [4, 5] }, // Weekdays - Afternoon/Late Afternoon
+        { days: [0, 6], slots: [1, 2] }, // Weekends - Morning/Late Morning
+      ],
+    },
+    {
+      playerId: '5',
+      name: 'Ryan Williams',
+      pattern: [
+        { days: [1, 3], slots: [6] }, // Mon, Wed - Evening
+        { days: [0, 6], slots: [2, 3, 4] }, // Weekends - Late Morning/Lunch/Afternoon
+      ],
+    },
+    {
+      playerId: '8',
+      name: 'Daniel Taylor',
+      pattern: [
+        { days: [2, 4], slots: [6] }, // Tue, Thu - Evening
+        { days: [6], slots: [1, 2, 3, 4] }, // Saturday - All morning/afternoon
+      ],
+    },
+    {
+      playerId: '15',
+      name: 'Victoria White',
+      pattern: [
+        { days: [1, 3, 5], slots: [1, 2] }, // Mon, Wed, Fri - Morning/Late Morning
+        { days: [0], slots: [3, 4] }, // Sunday - Lunch/Afternoon
+      ],
+    },
+  ];
+
+  let blockIdCounter = 1;
+
+  // Generate blocks for next 14 days
+  for (let dayOffset = 0; dayOffset < 14; dayOffset++) {
+    const date = new Date(today);
+    date.setDate(date.getDate() + dayOffset);
+    const dayOfWeek = date.getDay();
+
+    playerSchedules.forEach((schedule) => {
+      schedule.pattern.forEach((pattern) => {
+        if (pattern.days.includes(dayOfWeek)) {
+          pattern.slots.forEach((slotIndex) => {
+            const slot = timeSlots[slotIndex];
+            if (slot) {
+              blocks.push({
+                id: `tb_${schedule.playerId}_${blockIdCounter++}`,
+                playerId: schedule.playerId,
+                date: new Date(date),
+                startTime: slot.start,
+                endTime: slot.end,
+                isRecurring: false,
+                notes: `${slot.label} availability`,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              });
+            }
+          });
+        }
+      });
+    });
+  }
+
+  return blocks.sort((a, b) => {
+    const dateCompare = a.date.getTime() - b.date.getTime();
+    if (dateCompare !== 0) return dateCompare;
+    return a.startTime.localeCompare(b.startTime);
+  });
+}
+
+// Export mock time blocks
+export const mockTimeBlocks: TimeBlock[] = generateMockTimeBlocks();
+
+// Helper function to get time blocks for a player
+export const getPlayerTimeBlocks = (playerId: string): TimeBlock[] => {
+  return mockTimeBlocks.filter(block => block.playerId === playerId);
+};
+
+// Helper function to get time blocks in a date range
+export const getTimeBlocksInRange = (
+  playerId: string,
+  startDate: Date,
+  endDate: Date
+): TimeBlock[] => {
+  return mockTimeBlocks.filter(
+    block =>
+      block.playerId === playerId &&
+      block.date >= startDate &&
+      block.date <= endDate
+  );
 };
