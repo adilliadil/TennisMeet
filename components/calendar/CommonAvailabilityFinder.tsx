@@ -5,7 +5,6 @@ import { User, AvailabilitySlot } from '@/types';
 import { findCommonAvailability } from '@/lib/availabilityManager';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar } from '@/components/ui/calendar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { CalendarIcon, Clock, Users, AlertCircle } from 'lucide-react';
@@ -123,21 +122,21 @@ export default function CommonAvailabilityFinder({
             <label className="text-sm font-medium">Time Range</label>
             <div className="flex gap-2">
               <Button
-                variant={dateRange.end.getTime() - dateRange.start.getTime() === 7 * 24 * 60 * 60 * 1000 ? 'default' : 'outline'}
+                variant={dateRange.end.getTime() - dateRange.start.getTime() === 7 * 24 * 60 * 60 * 1000 ? 'secondary' : 'outline'}
                 size="sm"
                 onClick={() => handleDateRangeUpdate(7)}
               >
                 Next Week
               </Button>
               <Button
-                variant={dateRange.end.getTime() - dateRange.start.getTime() === 14 * 24 * 60 * 60 * 1000 ? 'default' : 'outline'}
+                variant={dateRange.end.getTime() - dateRange.start.getTime() === 14 * 24 * 60 * 60 * 1000 ? 'secondary' : 'outline'}
                 size="sm"
                 onClick={() => handleDateRangeUpdate(14)}
               >
                 Next 2 Weeks
               </Button>
               <Button
-                variant={dateRange.end.getTime() - dateRange.start.getTime() === 30 * 24 * 60 * 60 * 1000 ? 'default' : 'outline'}
+                variant={dateRange.end.getTime() - dateRange.start.getTime() === 30 * 24 * 60 * 60 * 1000 ? 'secondary' : 'outline'}
                 size="sm"
                 onClick={() => handleDateRangeUpdate(30)}
               >
@@ -150,21 +149,21 @@ export default function CommonAvailabilityFinder({
             <label className="text-sm font-medium">Minimum Duration</label>
             <div className="flex gap-2">
               <Button
-                variant={minDuration === 60 ? 'default' : 'outline'}
+                variant={minDuration === 60 ? 'secondary' : 'outline'}
                 size="sm"
                 onClick={() => setMinDuration(60)}
               >
                 1 hour
               </Button>
               <Button
-                variant={minDuration === 90 ? 'default' : 'outline'}
+                variant={minDuration === 90 ? 'secondary' : 'outline'}
                 size="sm"
                 onClick={() => setMinDuration(90)}
               >
                 1.5 hours
               </Button>
               <Button
-                variant={minDuration === 120 ? 'default' : 'outline'}
+                variant={minDuration === 120 ? 'secondary' : 'outline'}
                 size="sm"
                 onClick={() => setMinDuration(120)}
               >

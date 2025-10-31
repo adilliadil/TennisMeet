@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { TimeBlock, DayOfWeek } from '@/types';
 import { createTimeBlock, updateTimeBlock, deleteTimeBlock, validateTimeBlock } from '@/lib/availabilityManager';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
@@ -311,7 +310,7 @@ export default function TimeBlockEditor({
                     <Button
                       key={value}
                       type="button"
-                      variant={selectedDays.includes(value) ? 'default' : 'outline'}
+                      variant={selectedDays.includes(value) ? 'secondary' : 'outline'}
                       size="sm"
                       onClick={() => toggleDay(value)}
                     >

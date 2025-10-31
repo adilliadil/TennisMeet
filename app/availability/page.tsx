@@ -51,7 +51,7 @@ export default function AvailabilityPage() {
     setIsEditorOpen(true);
   };
 
-  const handleSaveBlock = (block: TimeBlock) => {
+  const handleSaveBlock = (_block: TimeBlock) => {
     // Refresh time blocks
     const blocks = getAllTimeBlocks().filter(
       (b) => b.playerId === selectedPlayerId
@@ -59,7 +59,7 @@ export default function AvailabilityPage() {
     setTimeBlocks(blocks);
   };
 
-  const handleDeleteBlock = (blockId: string) => {
+  const handleDeleteBlock = (_blockId: string) => {
     // Refresh time blocks
     const blocks = getAllTimeBlocks().filter(
       (b) => b.playerId === selectedPlayerId
@@ -204,7 +204,7 @@ export default function AvailabilityPage() {
                     <Calendar className="w-12 h-12 mx-auto mb-3 opacity-20" />
                     <p className="text-sm">No upcoming availability</p>
                     <Button
-                      variant="link"
+                      variant="ghost"
                       size="sm"
                       onClick={handleAddAvailability}
                       className="mt-2"

@@ -21,14 +21,13 @@ interface AvailabilityCalendarProps {
 
 export default function AvailabilityCalendar({
   playerId,
-  timeBlocks = [],
+  timeBlocks: _timeBlocks = [],
   view: initialView = 'month',
   onDateSelect,
   onTimeBlockClick,
   selectedDate,
   className,
 }: AvailabilityCalendarProps) {
-  const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>(initialView);
 
