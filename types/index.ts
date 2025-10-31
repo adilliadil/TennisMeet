@@ -204,3 +204,132 @@ export type AvailabilityFilters = {
   dayOfWeek?: DayOfWeek;
   minDuration?: number; // minimum duration in minutes
 };
+
+// Court Management Types
+
+export type CourtSurface = 'hard' | 'clay' | 'grass' | 'carpet' | 'indoor-hard' | 'indoor-carpet';
+
+export type CourtAmenity =
+  | 'lighting'
+  | 'parking'
+  | 'restrooms'
+  | 'water-fountain'
+  | 'pro-shop'
+  | 'locker-rooms'
+  | 'seating'
+  | 'ball-machine'
+  | 'wheelchair-accessible'
+  | 'lessons-available';
+
+export type CourtAvailability = 'public' | 'private' | 'members-only' | 'reservation-required';
+
+export type CourtOperatingHours = {
+  dayOfWeek: DayOfWeek;
+  openTime: string; // Format: "HH:mm"
+  closeTime: string; // Format: "HH:mm"
+  isClosed: boolean;
+};
+
+export type CourtLocation = {
+  latitude: number;
+  longitude: number;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country?: string;
+};
+
+export type Court = {
+  id: string;
+  name: string;
+  description?: string;
+  location: CourtLocation;
+  surface: CourtSurface;
+  amenities: CourtAmenity[];
+  availability: CourtAvailability;
+  operatingHours: CourtOperatingHours[];
+  numberOfCourts: number; // Number of courts at this facility
+  isIndoor: boolean;
+  pricing?: {
+    hourlyRate?: number;
+    currency: string;
+    notes?: string;
+  };
+  contact?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+  };
+  images?: string[]; // URLs to court images
+  rating?: {
+    averageRating: number; // 1-5 stars
+    totalReviews: number;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy?: string; // User ID who added the court
+};
+
+export type CourtFilters = {
+  surface?: CourtSurface[];
+  amenities?: CourtAmenity[];
+  availability?: CourtAvailability[];
+  isIndoor?: boolean;
+  maxDistance?: number; // in kilometers
+  userLocation?: {
+    latitude: number;
+    longitude: number;
+  };
+  minRating?: number;
+  searchTerm?: string; // Search by name, city, or address
+  priceRange?: {
+    min?: number;
+    max?: number;
+  };
+};
+
+export type CourtSearchResult = {
+  court: Court;
+  distance?: number; // distance from user in kilometers
+  matchScore?: number; // relevance score for search
+};
+
+export type UserCourtFavorite = {
+  id: string;
+  userId: string;
+  courtId: string;
+  notes?: string;
+  addedAt: Date;
+};
+
+export type CourtBooking = {
+  id: string;
+  courtId: string;
+  matchId?: string; // Optional link to a match
+  userId: string;
+  date: Date;
+  startTime: string; // Format: "HH:mm"
+  endTime: string; // Format: "HH:mm"
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type CourtStatistics = {
+  courtId: string;
+  totalBookings: number;
+  totalMatches: number;
+  averageBookingDuration: number; // in minutes
+  popularTimeSlots: {
+    dayOfWeek: DayOfWeek;
+    timeRange: string;
+    bookingCount: number;
+  }[];
+  peakMonths: {
+    month: number;
+    year: number;
+    bookingCount: number;
+  }[];
+};

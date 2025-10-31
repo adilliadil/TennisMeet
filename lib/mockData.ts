@@ -1,4 +1,4 @@
-import { User, MatchHistoryEntry, Match, MatchSet, TimeBlock } from '@/types';
+import { User, MatchHistoryEntry, Match, MatchSet, TimeBlock, Court, CourtOperatingHours, DayOfWeek } from '@/types';
 import { createMatch } from './matchManager';
 
 // San Francisco Bay Area locations for realistic mock data
@@ -1014,4 +1014,510 @@ export const getTimeBlocksInRange = (
       block.date >= startDate &&
       block.date <= endDate
   );
+};
+
+// Generate standard operating hours for courts
+const generateStandardHours = (openTime: string = '06:00', closeTime: string = '22:00'): CourtOperatingHours[] => {
+  const days: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  return days.map(day => ({
+    dayOfWeek: day,
+    openTime,
+    closeTime,
+    isClosed: false,
+  }));
+};
+
+const generateWeekdayWeekendHours = (): CourtOperatingHours[] => {
+  const weekdays: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+  const weekends: DayOfWeek[] = ['saturday', 'sunday'];
+
+  return [
+    ...weekdays.map(day => ({
+      dayOfWeek: day,
+      openTime: '06:00',
+      closeTime: '22:00',
+      isClosed: false,
+    })),
+    ...weekends.map(day => ({
+      dayOfWeek: day,
+      openTime: '07:00',
+      closeTime: '20:00',
+      isClosed: false,
+    })),
+  ];
+};
+
+// Generate mock courts for Bay Area
+function generateMockCourts(): Court[] {
+  const courts: Court[] = [
+    {
+      id: 'court-1',
+      name: 'Golden Gate Park Tennis Center',
+      description: 'Premier tennis facility in the heart of Golden Gate Park with 21 courts. Host to numerous city championships.',
+      location: {
+        latitude: 37.7711,
+        longitude: -122.4571,
+        address: '30 John F Kennedy Drive',
+        city: 'San Francisco',
+        state: 'CA',
+        zipCode: '94121',
+        country: 'USA',
+      },
+      surface: 'hard',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'pro-shop', 'locker-rooms', 'seating', 'lessons-available'],
+      availability: 'public',
+      operatingHours: generateStandardHours('06:00', '22:00'),
+      numberOfCourts: 21,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 15,
+        currency: 'USD',
+        notes: 'Discounts available for seniors and youth. Annual memberships available.',
+      },
+      contact: {
+        phone: '(415) 753-7001',
+        email: 'info@goldengatetennis.com',
+        website: 'https://goldengatepark.com/tennis',
+      },
+      images: ['/courts/golden-gate-park.jpg'],
+      rating: {
+        averageRating: 4.7,
+        totalReviews: 342,
+      },
+      createdAt: new Date('2023-01-15'),
+      updatedAt: new Date('2025-10-20'),
+    },
+    {
+      id: 'court-2',
+      name: 'Oakland Tennis Center',
+      description: 'City-owned facility with 8 well-maintained courts. Perfect for casual and competitive play.',
+      location: {
+        latitude: 37.8044,
+        longitude: -122.2612,
+        address: '720 Webster Street',
+        city: 'Oakland',
+        state: 'CA',
+        zipCode: '94607',
+        country: 'USA',
+      },
+      surface: 'clay',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'seating'],
+      availability: 'public',
+      operatingHours: generateStandardHours('07:00', '21:00'),
+      numberOfCourts: 8,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 10,
+        currency: 'USD',
+        notes: 'Free for Oakland residents on weekday mornings before 10am.',
+      },
+      contact: {
+        phone: '(510) 238-7275',
+        email: 'oaklandtennis@oaklandca.gov',
+      },
+      rating: {
+        averageRating: 4.3,
+        totalReviews: 187,
+      },
+      createdAt: new Date('2023-02-10'),
+      updatedAt: new Date('2025-10-18'),
+    },
+    {
+      id: 'court-3',
+      name: 'Stanford University Tennis Stadium',
+      description: 'Collegiate-level facility open to the public during non-team hours. Professional-grade courts.',
+      location: {
+        latitude: 37.4275,
+        longitude: -122.1697,
+        address: '385 Lomita Drive',
+        city: 'Palo Alto',
+        state: 'CA',
+        zipCode: '94305',
+        country: 'USA',
+      },
+      surface: 'hard',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'seating', 'locker-rooms', 'pro-shop'],
+      availability: 'members-only',
+      operatingHours: generateWeekdayWeekendHours(),
+      numberOfCourts: 12,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 25,
+        currency: 'USD',
+        notes: 'Stanford community members and guests only.',
+      },
+      contact: {
+        phone: '(650) 723-4400',
+        email: 'tennis@stanford.edu',
+        website: 'https://gostanford.com/sports/2013/11/22/facilities.aspx',
+      },
+      rating: {
+        averageRating: 4.9,
+        totalReviews: 215,
+      },
+      createdAt: new Date('2023-01-20'),
+      updatedAt: new Date('2025-10-22'),
+    },
+    {
+      id: 'court-4',
+      name: 'Bay Club San Francisco Tennis',
+      description: 'Premium indoor/outdoor tennis club with state-of-the-art facilities and professional instruction.',
+      location: {
+        latitude: 37.7861,
+        longitude: -122.3976,
+        address: '150 Greenwich Street',
+        city: 'San Francisco',
+        state: 'CA',
+        zipCode: '94111',
+        country: 'USA',
+      },
+      surface: 'indoor-hard',
+      amenities: [
+        'lighting',
+        'parking',
+        'restrooms',
+        'water-fountain',
+        'pro-shop',
+        'locker-rooms',
+        'seating',
+        'ball-machine',
+        'lessons-available',
+      ],
+      availability: 'private',
+      operatingHours: generateStandardHours('05:00', '23:00'),
+      numberOfCourts: 9,
+      isIndoor: true,
+      pricing: {
+        hourlyRate: 45,
+        currency: 'USD',
+        notes: 'Members and guests only. Monthly membership required.',
+      },
+      contact: {
+        phone: '(415) 433-2550',
+        email: 'sftennis@bayclubs.com',
+        website: 'https://bayclubs.com/san-francisco-tennis',
+      },
+      rating: {
+        averageRating: 4.8,
+        totalReviews: 298,
+      },
+      createdAt: new Date('2023-03-05'),
+      updatedAt: new Date('2025-10-25'),
+    },
+    {
+      id: 'court-5',
+      name: 'Berkeley Tennis Club',
+      description: 'Historic tennis club founded in 1906. Beautiful setting with excellent clay courts.',
+      location: {
+        latitude: 37.8670,
+        longitude: -122.2560,
+        address: '2880 Bannock Way',
+        city: 'Berkeley',
+        state: 'CA',
+        zipCode: '94705',
+        country: 'USA',
+      },
+      surface: 'clay',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'locker-rooms', 'seating', 'lessons-available'],
+      availability: 'members-only',
+      operatingHours: generateStandardHours('07:00', '21:00'),
+      numberOfCourts: 16,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 20,
+        currency: 'USD',
+        notes: 'Members and guests only. Junior programs available.',
+      },
+      contact: {
+        phone: '(510) 841-1380',
+        email: 'info@berkeleytennisclub.org',
+        website: 'https://berkeleytennisclub.org',
+      },
+      rating: {
+        averageRating: 4.6,
+        totalReviews: 156,
+      },
+      createdAt: new Date('2023-02-15'),
+      updatedAt: new Date('2025-10-19'),
+    },
+    {
+      id: 'court-6',
+      name: 'Mitchell Park Tennis Courts',
+      description: 'Community courts in a beautiful park setting. Great for recreational play.',
+      location: {
+        latitude: 37.4419,
+        longitude: -122.1430,
+        address: '3700 Middlefield Road',
+        city: 'Palo Alto',
+        state: 'CA',
+        zipCode: '94303',
+        country: 'USA',
+      },
+      surface: 'hard',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'seating'],
+      availability: 'public',
+      operatingHours: generateStandardHours('06:00', '22:00'),
+      numberOfCourts: 6,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 0,
+        currency: 'USD',
+        notes: 'Free public courts. First come, first served.',
+      },
+      contact: {
+        phone: '(650) 329-2261',
+      },
+      rating: {
+        averageRating: 4.2,
+        totalReviews: 124,
+      },
+      createdAt: new Date('2023-04-01'),
+      updatedAt: new Date('2025-10-15'),
+    },
+    {
+      id: 'court-7',
+      name: 'Courtside Club Los Altos',
+      description: 'Upscale tennis and fitness club with outdoor and indoor courts. Family-friendly atmosphere.',
+      location: {
+        latitude: 37.3688,
+        longitude: -122.1063,
+        address: '655 Fremont Avenue',
+        city: 'Los Altos',
+        state: 'CA',
+        zipCode: '94024',
+        country: 'USA',
+      },
+      surface: 'indoor-hard',
+      amenities: [
+        'lighting',
+        'parking',
+        'restrooms',
+        'water-fountain',
+        'pro-shop',
+        'locker-rooms',
+        'seating',
+        'ball-machine',
+        'wheelchair-accessible',
+        'lessons-available',
+      ],
+      availability: 'private',
+      operatingHours: generateStandardHours('05:30', '23:00'),
+      numberOfCourts: 14,
+      isIndoor: true,
+      pricing: {
+        hourlyRate: 40,
+        currency: 'USD',
+        notes: 'Membership required. Family packages available.',
+      },
+      contact: {
+        phone: '(650) 947-2582',
+        email: 'info@courtsideclublosaltos.com',
+        website: 'https://courtsideclublosaltos.com',
+      },
+      rating: {
+        averageRating: 4.7,
+        totalReviews: 267,
+      },
+      createdAt: new Date('2023-03-20'),
+      updatedAt: new Date('2025-10-23'),
+    },
+    {
+      id: 'court-8',
+      name: 'San Jose Municipal Tennis Center',
+      description: 'Large public facility with 24 courts. Excellent for leagues and tournaments.',
+      location: {
+        latitude: 37.3382,
+        longitude: -121.8863,
+        address: '2190 Kenwood Avenue',
+        city: 'San Jose',
+        state: 'CA',
+        zipCode: '95128',
+        country: 'USA',
+      },
+      surface: 'hard',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'seating', 'lessons-available'],
+      availability: 'public',
+      operatingHours: generateStandardHours('06:00', '22:00'),
+      numberOfCourts: 24,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 8,
+        currency: 'USD',
+        notes: 'Discounted rates for seniors and juniors. League play available.',
+      },
+      contact: {
+        phone: '(408) 277-4661',
+        email: 'tennis@sanjoseca.gov',
+      },
+      rating: {
+        averageRating: 4.4,
+        totalReviews: 289,
+      },
+      createdAt: new Date('2023-01-10'),
+      updatedAt: new Date('2025-10-21'),
+    },
+    {
+      id: 'court-9',
+      name: 'Fremont Tennis Club',
+      description: 'Community-oriented club with mix of hard and clay courts. Active social scene.',
+      location: {
+        latitude: 37.5483,
+        longitude: -121.9886,
+        address: '3737 Decoto Road',
+        city: 'Fremont',
+        state: 'CA',
+        zipCode: '94555',
+        country: 'USA',
+      },
+      surface: 'hard',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'seating', 'lessons-available'],
+      availability: 'public',
+      operatingHours: generateStandardHours('06:30', '21:30'),
+      numberOfCourts: 10,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 12,
+        currency: 'USD',
+        notes: 'Membership available for frequent players.',
+      },
+      contact: {
+        phone: '(510) 656-3903',
+        email: 'info@fremonttennisclub.com',
+      },
+      rating: {
+        averageRating: 4.5,
+        totalReviews: 178,
+      },
+      createdAt: new Date('2023-02-25'),
+      updatedAt: new Date('2025-10-17'),
+    },
+    {
+      id: 'court-10',
+      name: 'Mountain View Tennis Center',
+      description: 'Modern public facility with excellent court conditions and friendly staff.',
+      location: {
+        latitude: 37.3861,
+        longitude: -122.0839,
+        address: '201 South Rengstorff Avenue',
+        city: 'Mountain View',
+        state: 'CA',
+        zipCode: '94040',
+        country: 'USA',
+      },
+      surface: 'hard',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'seating', 'wheelchair-accessible'],
+      availability: 'reservation-required',
+      operatingHours: generateStandardHours('06:00', '22:00'),
+      numberOfCourts: 8,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 10,
+        currency: 'USD',
+        notes: 'Reservations required. Online booking available.',
+      },
+      contact: {
+        phone: '(650) 903-6331',
+        email: 'tennis@mountainview.gov',
+        website: 'https://mountainview.gov/tennis',
+      },
+      rating: {
+        averageRating: 4.6,
+        totalReviews: 201,
+      },
+      createdAt: new Date('2023-03-15'),
+      updatedAt: new Date('2025-10-24'),
+    },
+    {
+      id: 'court-11',
+      name: 'Sunnyvale Tennis Club',
+      description: 'Family-friendly club with programs for all ages and skill levels.',
+      location: {
+        latitude: 37.3688,
+        longitude: -122.0363,
+        address: '1296 Lawrence Station Road',
+        city: 'Sunnyvale',
+        state: 'CA',
+        zipCode: '94089',
+        country: 'USA',
+      },
+      surface: 'hard',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'seating', 'lessons-available'],
+      availability: 'public',
+      operatingHours: generateStandardHours('06:00', '21:00'),
+      numberOfCourts: 7,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 9,
+        currency: 'USD',
+        notes: 'Youth programs and summer camps available.',
+      },
+      contact: {
+        phone: '(408) 730-7350',
+        email: 'tennis@sunnyvale.ca.gov',
+      },
+      rating: {
+        averageRating: 4.3,
+        totalReviews: 142,
+      },
+      createdAt: new Date('2023-04-10'),
+      updatedAt: new Date('2025-10-16'),
+    },
+    {
+      id: 'court-12',
+      name: 'Santa Clara Tennis Center',
+      description: 'Well-maintained city courts with regular tournaments and league play.',
+      location: {
+        latitude: 37.3541,
+        longitude: -121.9552,
+        address: '1560 Hanchett Avenue',
+        city: 'Santa Clara',
+        state: 'CA',
+        zipCode: '95051',
+        country: 'USA',
+      },
+      surface: 'hard',
+      amenities: ['lighting', 'parking', 'restrooms', 'water-fountain', 'seating'],
+      availability: 'public',
+      operatingHours: generateStandardHours('06:30', '21:30'),
+      numberOfCourts: 9,
+      isIndoor: false,
+      pricing: {
+        hourlyRate: 8,
+        currency: 'USD',
+        notes: 'Resident discounts available.',
+      },
+      contact: {
+        phone: '(408) 615-3151',
+        email: 'tennis@santaclaraca.gov',
+      },
+      rating: {
+        averageRating: 4.4,
+        totalReviews: 165,
+      },
+      createdAt: new Date('2023-02-20'),
+      updatedAt: new Date('2025-10-18'),
+    },
+  ];
+
+  return courts;
+}
+
+// Export mock courts
+export const mockCourts: Court[] = generateMockCourts();
+
+// Helper function to get court by ID
+export const getCourtById = (courtId: string): Court | undefined => {
+  return mockCourts.find(court => court.id === courtId);
+};
+
+// Helper function to get courts by city
+export const getCourtsByCity = (city: string): Court[] => {
+  return mockCourts.filter(court =>
+    court.location.city.toLowerCase() === city.toLowerCase()
+  );
+};
+
+// Helper function to get courts by surface
+export const getCourtsBySurface = (surface: string): Court[] => {
+  return mockCourts.filter(court => court.surface === surface);
 };
